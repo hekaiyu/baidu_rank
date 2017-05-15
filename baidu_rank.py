@@ -62,26 +62,17 @@ def baidu_html(baiduURL):
 	if x>=5:
 		r={"feed":{"all": "1","entry":[{"title":(word.strip()),"url":"超时，请重查"}]}}
 	return r
-def baidu_title():
+def baidu_title(url):
 	if url=='超时，请重查':
 		rt=str(word.strip())+'\t'+str(url)+'\n'
 	else:
 		rt=str(word.strip())+'\t'+str(url)+'\n'
 	return rt
-
-cxtime=time.strftime("%Y%m%d", time.localtime()) 
-words=open('xiala.txt','r').readlines()
-for word in words:
-	sword=s_word(word)
-	baiduURL = 'http://www.baidu.com/s?wd=intitle:%s&tn=json&rn=20' % word.strip()
-	r = baidu_html(baiduURL)
-	all=r.get('feed').get ('all')
+def panduan(all):
 	if all==0:
 		rt=str(word.strip())+'\t'+'未收'+'\n'
 		print rt
-		f=open(cxtime+'baiducluded.txt','a')
-		f.write(str(rt))
-		f.close()
+		list.append(rt)
 	else:
 		for i in r.get('feed').get('entry'): 
 			if 'title' in i:
@@ -89,12 +80,25 @@ for word in words:
 				title=i.get ('title')
 				ititle=s_word(title)
 				if sword in ititle:
-					rt=baidu_title()
+					rt=baidu_title(url)
 					print rt
-					f=open(cxtime+'baiducluded.txt','a')
-					f.write(str(rt))
-					f.close()
+					list.append(rt)
+	return list
+cxtime=time.strftime("%Y%m%d", time.localtime())
+list=[] 
+words=open('xiala.txt','r').readlines()
+for word in words:
+	sword=s_word(word)
+	baiduURL = 'https://www.baidu.com/s?wd=intitle:%s&tn=json' % word.strip()
+	r = baidu_html(baiduURL)
+	all=r.get('feed').get ('all')
+	list=panduan(all)
+for i in list:
+	f=open(cxtime+'baiducluded.txt','a')
+	f.write(str(i))
+	f.close()
 #so开始，百度以上
+for word in words:
 	soURL = 'http://www.so.com/s?q=intitle:%s' % word.strip()
 	print soURL
 	html= requests.get(soURL, headers = headers1,timeout=30)
