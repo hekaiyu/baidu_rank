@@ -89,33 +89,38 @@ list=[]
 words=open('xiala.txt','r').readlines()
 for word in words:
 	sword=s_word(word)
-	baiduURL = 'https://www.baidu.com/s?wd=intitle:%s&tn=json' % word.strip()
+	baiduURL = 'https://www.baidu.com/s?wd=intitle:%s&tn=json&rn=20' % word.strip()
 	r = baidu_html(baiduURL)
 	all=r.get('feed').get ('all')
 	list=panduan(all)
-for i in list:
-	f=open(cxtime+'baiducluded.txt','a')
-	f.write(str(i))
-	f.close()
+	for i in list:
+		f=open(cxtime+'baiducluded.txt','a')
+		f.write(str(i))
+		f.close()
 #so开始，百度以上
-for word in words:
-	soURL = 'http://www.so.com/s?q=intitle:%s' % word.strip()
-	print soURL
-	html= requests.get(soURL, headers = headers1,timeout=30)
-	html=html.text
-	soup = BeautifulSoup(html, 'lxml')
-	soup=soup.find_all("h3",class_="res-title ")
-	for i in soup:
-		soup=i.find_all('a')
+	y=1
+	while y<3:
+		soURL = 'http://www.so.com/s?q=intitle:%s&pn=%s' % (word.strip(),y)
+		print soURL
+		html= requests.get(soURL, headers = headers1,timeout=30)
+		html=html.text
+		soup = BeautifulSoup(html, 'lxml')
+		soup=soup.find_all(name="h3", attrs={"class":re.compile(r"res-title(\s\w+)?")})
 		for i in soup:
-			sotitle=i.getText()
-			sourl=i.get('href')
-			r=re.findall("so.com\/link\?url=(.*)?&q",sourl)
-			for url in r:
-				url = urllib.unquote(url)
+			soup=i.find_all('a')
+			for i in soup:
+				sotitle=i.getText()
+				sourl=i.get('href')
+				if "http://www.so.com/link?url=" in sourl:
+					r=re.findall("so.com\/link\?url=(.*)?&q",sourl)
+					for url in r:
+						url = urllib.unquote(url)
+				else:
+					url=sourl
 				sotitle=s_word(sotitle)
 				if sword in sotitle :#对关键词、网站标题同时去除标点，如果网站标题含有关键词，则视为收录
 					print sotitle,url
 					f=open(cxtime+'socluded.txt','a')
 					f.write(str(word.strip())+'\t'+str(url)+'\n')
 					f.close()
+		y=y+1
