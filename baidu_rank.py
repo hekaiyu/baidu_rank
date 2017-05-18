@@ -69,6 +69,7 @@ def baidu_title(url):
 		rt=str(word.strip())+'\t'+str(url)+'\n'
 	return rt
 def panduan(all):
+	list=[] 
 	if all==0:
 		rt=str(word.strip())+'\t'+'未收'+'\n'
 		print rt
@@ -85,7 +86,6 @@ def panduan(all):
 					list.append(rt)
 	return list
 cxtime=time.strftime("%Y%m%d", time.localtime())
-list=[] 
 words=open('xiala.txt','r').readlines()
 for word in words:
 	sword=s_word(word)
